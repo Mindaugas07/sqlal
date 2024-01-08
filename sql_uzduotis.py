@@ -25,7 +25,7 @@ class Person(Base):
     accounts = relationship("BankAccount", back_populates="person")
 
     def __repr__(self):
-        return f"{self.id} {self.name} {self.surname} {self.person_identity_code} {self.phone_number}"
+        return f"{self.name} {self.surname} {self.person_identity_code} {self.phone_number}"
 
 
 class Bank(Base):
@@ -41,9 +41,7 @@ class Bank(Base):
     accounts = relationship("BankAccount", back_populates="bank")
 
     def __repr__(self):
-        return (
-            f"{self.id} {self.name} {self.address} {self.bank_code} {self.swift_code}"
-        )
+        return f"{self.name} {self.address} {self.bank_code} {self.swift_code}"
 
 
 class BankAccount(Base):
@@ -57,13 +55,21 @@ class BankAccount(Base):
     bank = relationship("Bank", back_populates="accounts")
 
     def __repr__(self):
-        return f"{self.id} {self.account_number} {self.balance}"
+        return f"{self.account_number} {self.balance}"
 
 
 Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
 session = Session()
+
+
+def get_all(items):
+    print("-------------------")
+    for item in items:
+        print(item)
+    print("-------------------")
+
 
 while True:
     option = int(
@@ -72,18 +78,23 @@ while True:
         )
     )
 
-    # if option == 1:
-    #     banks = session.query(Bank).all()
-    #     print("-------------------")
-    #     for bank in banks:
-    #         print(bank)
-    #     print("-------------------")
+    if option == 1:
+        banks = session.query(Bank).all()
+        get_all(banks)
 
-    if option == 4:
-        name = input("Enter customer name")
-        surname = input("Enter customer surname")
-        person_identity_code = input("Enter customer indentity code")
-        phone_number = input("Enter customer phone number")
+    elif option == 2:
+        persons = session.query(Person).all()
+        get_all(persons)
+
+    elif option == 3:
+        accounts = session.query(BankAccount).all()
+        get_all(accounts)
+
+    elif option == 4:
+        name = input("Enter customer name ")
+        surname = input("Enter customer surname ")
+        person_identity_code = input("Enter customer indentity code ")
+        phone_number = input("Enter customer phone number ")
 
         customer_one = Person(
             name=name,
@@ -92,16 +103,26 @@ while True:
             phone_number=phone_number,
         )
 
-        bank_one = Bank(
-            name="SEB", address="Vilnius 5", bank_code="456", swift_code="45687ERRR"
-        )
-        acount_one = BankAccount(account_number="5465465", balance="145")
-
-        bank_one.accounts.append(acount_one)
-        customer_one.banks.append(bank_one)
-        print(customer_one.name)
-        print(bank_one)
-
         session.add(customer_one)
+        session.commit()
+        session.close()
+
+    elif option == 5:
+        name = input("Enter bank name ")
+        address = input("Enter bank address ")
+        bank_code = input("Enter bank code ")
+        swift_code = input("Enter bank swift code ")
+
+        bank_one = Bank(
+            name=name, address=address, bank_code=bank_code, swift_code=swift_code
+        )
+        # acount_one = BankAccount(account_number="5465465", balance="145")
+
+        # bank_one.accounts.append(acount_one)
+        # customer_one.banks.append(bank_one)
+        # print(customer_one.name)
+        # print(bank_one)
+
+        session.add(bank_one)
         session.commit()
         session.close()
